@@ -10,7 +10,7 @@ RUN apt-get update -y && apt-get install -y libpng12-dev libjpeg-dev libpq-dev m
     && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
     && docker-php-ext-install gd mbstring pdo pdo_mysql pdo_pgsql mysql mysqli
 
-RUN echo 'sendmail_path = "/usr/sbin/msmtp -t"' > /usr/local/etc/php/conf.d/sendmail.ini
+RUN echo 'sendmail_path = "/usr/bin/msmtp -t"' > /usr/local/etc/php/conf.d/sendmail.ini
 
 WORKDIR /var/www/html
 
