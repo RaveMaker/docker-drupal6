@@ -5,9 +5,9 @@ FROM php:5.5-apache
 RUN a2enmod rewrite
 
 # install the PHP extensions we need
-RUN apt-get update -y && apt-get install -y libpng12-dev libjpeg-dev libpq-dev msmtp \
-    && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+RUN apt-get update -y && apt-get install -y libpng12-dev libjpeg-dev libpq-dev msmtp
+
+RUN && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
     && docker-php-ext-install gd mbstring pdo pdo_mysql pdo_pgsql mysql mysqli
 
 RUN echo 'sendmail_path = "/usr/bin/msmtp -t"' > /usr/local/etc/php/conf.d/sendmail.ini
