@@ -12,6 +12,10 @@ RUN && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
 
 RUN echo 'sendmail_path = "/usr/bin/msmtp -t"' > /usr/local/etc/php/conf.d/sendmail.ini
 
+ADD msmtp/msmtprc /etc/msmtprc
+
+RUN chown www-data:www-data /etc/msmtprc && chmod 600 /etc/msmtprc
+
 WORKDIR /var/www/html
 
 # https://www.drupal.org/node/3060/release?api_version%5B%5D=87

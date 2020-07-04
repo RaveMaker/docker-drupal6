@@ -4,7 +4,7 @@ services:
 
   drupal:
     build: .
-    image: ${podName}/drupal
+    image: ${podName}-drupal
     depends_on:
       - mariadb
     volumes:
@@ -14,22 +14,23 @@ services:
       - ./drupal/sites:/var/www/html/sites
       - ./msmtp/msmtprc:/etc/msmtprc
     restart: always
+    ports:
+      - 80:80
     networks:
       - frontend
       - backend
-    labels:
-      - "traefik.backend=${podName}-drupal"
-      - "traefik.frontend.rule=Host:${hostRule}"
-      - "traefik.docker.network=${podName}_frontend"
-      - "traefik.port=80"
+    # Deploy block for docker swarm mode only - ignored by docker-compose
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   mariadb:
     image: mariadb
     restart: always
     networks:
       - backend
-    labels:
-      - "traefik.enable=false"
     environment:
       MYSQL_DATABASE: ${dbName}
       MYSQL_USER: ${dbUser}
@@ -37,6 +38,12 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
     volumes:
       - ./database:/var/lib/mysql
+    # Deploy block for docker swarm mode only - ignored by docker-compose
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
 
   backup:
     image: zeenlym/mariadb-backup
@@ -45,8 +52,6 @@ services:
     restart: always
     networks:
       - backend
-    labels:
-      - "traefik.enable=false"
     environment:
       - TIMEZONE=${timeZone}
       - SCHEDULE=0 0 3 * *
@@ -57,22 +62,12 @@ services:
       - MYSQL_PASSWORD=${dbPass}
     volumes:
       - ./backup:/backup
-
-  adminer:
-    image: adminer
-    restart: always
-    depends_on:
-      - mariadb
-    networks:
-      - frontend
-      - backend
-    environment:
-      - ADMINER_DEFAULT_SERVER=mariadb
-    labels:
-      - "traefik.backend=${podName}-adminer"
-      - "traefik.frontend.rule=Host:${adminerHostRule}"
-      - "traefik.docker.network=${podName}_frontend"
-      - "traefik.port=8080"
+    # Deploy block for docker swarm mode only - ignored by docker-compose
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
 
 networks:
   frontend:
